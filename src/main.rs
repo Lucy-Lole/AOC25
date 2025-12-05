@@ -40,17 +40,20 @@ fn main() -> Result<(), &'static str> {
 
 fn perform_rotation(current_position: i32, movement: &Direction) -> (i32, i32) {
     let new_absolute =
-        if movement.is_right {current_position + movement.value} 
-        else {current_position - movement.value};
-
-    let clicks =
-        if movement.is_right {(new_absolute) / 100} 
-        else if current_position != 0 || movement.value > 99 {(-new_absolute + 100) / 100}
-        else {0};
+        if movement.is_right {current_position + movement.value}
+        else                 {current_position - movement.value};
 
     let new_final =
         if movement.is_right {(new_absolute) % 100 }
-        else { (100 + new_absolute) % 100 };
+        else                 { (100 + new_absolute) % 100 };
+
+    let delta_to_click = 
+        if movement.is_right {100 - current_position}
+        else                 {current_position};
+
+    let clicks =
+        if movement.value.abs() >= delta_to_click && delta_to_click != 0 {1 + ((movement.value.abs() - delta_to_click) / 100) }
+        else {0};
 
     return (new_final, clicks);
 }
