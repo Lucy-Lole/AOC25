@@ -1,0 +1,70 @@
+use std::{fs};
+
+struct Direction {
+    is_right: bool,
+    value: i32
+}
+
+fn main() -> Result<(), &'static str> {
+
+    let file = match fs::read_to_string("./src/inputs/day1.txt") {
+        Ok(f) => f,
+        Err(e) => panic!("Problem reading input file: {e:?}"),
+    };
+
+    let lines = file.split('\n');
+
+    let directions_data: Result<Vec<Direction>, _> = lines
+        .filter(|l| l.len() > 1)
+        .map(|l| parse_direction(l))
+        .collect();
+
+    let directions = match directions_data {
+        Ok(directions) => directions,
+        Err(e) => return Err(e)
+    };
+
+    let mut current_position: i32 = 50;
+    let mut counter = 0;
+
+    for dir in directions {
+        current_position = perform_rotation(current_position, &dir);
+        if current_position == 0 {
+            counter += 1;
+        }
+    }
+
+    println!("Done with {counter}");
+    return Ok(());
+}
+
+fn perform_rotation(current_position: i32, movement: &Direction) -> i32 {
+    if (!movement.is_right) {
+        return 100 - (movement.value - current_position);
+    }
+    else {
+        return (current_position + movement.value) % 100;
+    }
+}
+
+type DirectionResult = Result<Direction, &'static str>;
+
+fn parse_direction(line: &str) -> DirectionResult {
+    let ( polarity_str, value_str ) = line.split_at(1);
+
+    let polarity = match polarity_str.parse::<char>() {
+        Ok(c) => match c {
+            'L' => false,
+            'R' => true,
+            _ => return Err("AA")
+        }
+        _ => return Err("aaaa")
+    };
+
+    let value = match value_str.parse::<i32>() {
+        Ok(v) => v,
+        Err(_) => return Err("Error parsing direction int")
+    };
+
+    return Ok(Direction { is_right: (polarity), value: (value) })
+}
