@@ -39,8 +39,8 @@ fn main() -> Result<(), &'static str> {
 }
 
 fn perform_rotation(current_position: i32, movement: &Direction) -> i32 {
-    if (!movement.is_right) {
-        return 100 - (movement.value - current_position);
+    if !movement.is_right {
+        return (100 - (movement.value - current_position)) % 100;
     }
     else {
         return (current_position + movement.value) % 100;
@@ -52,13 +52,10 @@ type DirectionResult = Result<Direction, &'static str>;
 fn parse_direction(line: &str) -> DirectionResult {
     let ( polarity_str, value_str ) = line.split_at(1);
 
-    let polarity = match polarity_str.parse::<char>() {
-        Ok(c) => match c {
-            'L' => false,
-            'R' => true,
-            _ => return Err("AA")
-        }
-        _ => return Err("aaaa")
+    let polarity = match polarity_str {
+        "L" => false,
+        "R" => true,
+        _ => return Err("AA")
     };
 
     let value = match value_str.parse::<i32>() {
