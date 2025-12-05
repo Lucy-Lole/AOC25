@@ -28,17 +28,32 @@ fn process_ids(ids: Vec<ProductId>) -> i64 {
 fn check_individual_id(id: i64) -> i64 {
     let count_of_digits = id.checked_ilog10().unwrap_or(0) + 1;
 
-    if count_of_digits % 2 == 0
-    {
-        let strval = id.to_string();
-        let (lstr, rstr) = strval.split_at((count_of_digits/2) as usize);
-        let lnum = lstr.parse::<i64>().unwrap();
-        let rnum = rstr.parse::<i64>().unwrap();
-
-        if lnum == rnum {return id};
+    for i in 1..count_of_digits {
+        if count_of_digits % i == 0 {
+            if breakdown_and_check(id, i) {
+                return id;
+            }
+        }
     }
 
     return 0;
+}
+
+fn breakdown_and_check(id: i64, size: u32) -> bool {
+    let mut chunks = vec![];
+    let mut cur = id.to_string();
+    while !cur.is_empty() {
+        let (chunk, rest) = cur.split_at(size as usize);
+        chunks.push(chunk.parse::<i64>().unwrap());
+        cur = rest.to_owned();
+    };
+
+    return check_parts(chunks);
+}
+
+fn check_parts(parts: Vec<i64>) -> bool {
+    let first = parts[0];
+    return parts.iter().all(|&p| p == first)
 }
 
 fn process_data(file: String) -> Result<Vec<ProductId>> {
