@@ -28,23 +28,31 @@ fn main() -> Result<(), &'static str> {
     let mut counter = 0;
 
     for dir in directions {
-        current_position = perform_rotation(current_position, &dir);
-        if current_position == 0 {
-            counter += 1;
-        }
+        let (new_pos, clicks) = perform_rotation(current_position, &dir);
+
+        current_position = new_pos;
+        counter += clicks;
     }
 
     println!("Done with {counter}");
     return Ok(());
 }
 
-fn perform_rotation(current_position: i32, movement: &Direction) -> i32 {
-    if !movement.is_right {
-        return (100 - (movement.value - current_position)) % 100;
-    }
-    else {
-        return (current_position + movement.value) % 100;
-    }
+fn perform_rotation(current_position: i32, movement: &Direction) -> (i32, i32) {
+    let new_absolute =
+        if movement.is_right {current_position + movement.value} 
+        else {current_position - movement.value};
+
+    let clicks =
+        if movement.is_right {(new_absolute) / 100} 
+        else if current_position != 0 || movement.value > 99 {(-new_absolute + 100) / 100}
+        else {0};
+
+    let new_final =
+        if movement.is_right {(new_absolute) % 100 }
+        else { (100 + new_absolute) % 100 };
+
+    return (new_final, clicks);
 }
 
 type DirectionResult = Result<Direction, &'static str>;
