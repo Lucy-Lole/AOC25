@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-struct Bank(Vec<u32>);
+type Bank = Vec<u64>;
 
 pub fn run_day_three(file_as_string: String) -> Result<String> {
     let banks = process_data(file_as_string)?;
@@ -10,10 +10,14 @@ pub fn run_day_three(file_as_string: String) -> Result<String> {
     return Ok(format!("Result: {result_value}"));
 }
 
-fn get_joltage(bank: &Bank) -> u32 {
-    let max_value = bank.0[0..bank.0.len()-1].iter().max().unwrap();
+fn get_joltage(bank: Bank, reserve: u32) -> u64 {
+    if reserve == 0 {
+        return *bank.iter().max().unwrap();
+    }
 
-    let mut itt = bank.0.iter();
+    let max_value = bank[0..bank.len() - (reserve as usize)].iter().max().unwrap();
+
+    let mut itt = bank.iter();
     let mut found = false;
 
     while !found {
@@ -22,13 +26,14 @@ fn get_joltage(bank: &Bank) -> u32 {
         }
     }
 
-    let second_max = itt.max().unwrap();
+    let remaining: Vec<u64> = itt.map(|a| a.to_owned()).collect();
 
-    return (max_value * 10) + *second_max;
+    let base: u64 = 10;
+    return (max_value * base.pow(reserve)) + get_joltage(remaining, reserve-1);
 }
 
-fn total_joltage(banks: Vec<Bank>) -> u32 {
-    return banks.iter().fold(0, |acc, item| acc + get_joltage(item));
+fn total_joltage(banks: Vec<Bank>) -> u64 {
+    return banks.iter().fold(0, |acc, item| acc + get_joltage(item.to_owned(), 11));
 }
 
 fn process_data(file: String) -> Result<Vec<Bank>> {
@@ -40,10 +45,10 @@ fn process_data(file: String) -> Result<Vec<Bank>> {
 }
 
 fn parse_bank(line: &str) -> Result<Bank> {
-    let bank: Vec<u32> = line
+    let bank: Vec<u64> = line
         .chars()
-        .map(|c| c.to_digit(10).unwrap())
+        .map(|c| c.to_digit(10).unwrap() as u64)
         .collect();
 
-    return Ok(Bank(bank));
+    return Ok(bank);
 }
