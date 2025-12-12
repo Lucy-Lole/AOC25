@@ -10,7 +10,7 @@ pub fn run_day_three(file_as_string: String) -> Result<String> {
     return Ok(format!("Result: {result_value}"));
 }
 
-fn get_joltage(bank: Bank, reserve: u32) -> u64 {
+fn get_joltage(bank: &Bank, reserve: u32) -> u64 {
     if reserve == 0 {
         return *bank.iter().max().unwrap();
     }
@@ -18,22 +18,21 @@ fn get_joltage(bank: Bank, reserve: u32) -> u64 {
     let max_value = bank[0..bank.len() - (reserve as usize)].iter().max().unwrap();
 
     let mut itt = bank.iter();
-    let mut found = false;
 
-    while !found {
-        if itt.next() == Some(max_value) {
-            found = true;
+    for value in &mut itt {
+        if value == max_value {
+            break;
         }
     }
 
     let remaining: Vec<u64> = itt.map(|a| a.to_owned()).collect();
 
     let base: u64 = 10;
-    return (max_value * base.pow(reserve)) + get_joltage(remaining, reserve-1);
+    return (max_value * base.pow(reserve)) + get_joltage(&remaining, reserve-1);
 }
 
 fn total_joltage(banks: Vec<Bank>) -> u64 {
-    return banks.iter().fold(0, |acc, item| acc + get_joltage(item.to_owned(), 11));
+    return banks.iter().map(|item| get_joltage(item, 11)).sum();
 }
 
 fn process_data(file: String) -> Result<Vec<Bank>> {
