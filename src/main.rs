@@ -7,10 +7,11 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 fn main() -> Result<(), &'static str> {
     // Change this to switch day
-    let day = "day7";
+    let day = "day8";
 
     let file = match fs::read_to_string(format!("./src/inputs/{day}.txt")) {
         Ok(f) => f,
@@ -25,6 +26,7 @@ fn main() -> Result<(), &'static str> {
         "day5" => day5::run_day_five(file),
         "day6" => day6::run_day_six(file),
         "day7" => day7::run_day_seven(file),
+        "day8" => day8::run_day_eight(file),
         _ => Err(anyhow::anyhow!("Invalid day"))
     };
 
